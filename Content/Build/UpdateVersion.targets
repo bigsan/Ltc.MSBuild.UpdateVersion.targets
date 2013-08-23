@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  Modify MajorVersion, MinorVersion and VersionFilePath properties if needed.
+  Default Version format: $(MajroVersion).$(MinorVersion).$(ChangesetId).$(Mdd)
+
+  NOTE: This build runs only when the $(Configuration.StartsWith('Release'))
+  -->
+  <PropertyGroup>
+    <MajorVersion Condition="$(MajorVersion) == ''">1</MajorVersion>
+    <MinorVersion Condition="$(MinorVersion) == ''">0</MinorVersion>
+    <VersionFilePath>$(ProjectDir)\Properties\AssemblyInfo.cs</VersionFilePath>
+  </PropertyGroup>
+
+  <Target Name="UpdateVersion"
+          DependsOnTargets="CreateVersionProperty"
+          BeforeTargets="Build"
+          Condition="$(Configuration.StartsWith('Release'))">
+    <Message Text="*** Updating version to $(Version)" Importance="high" />
+    <ModifyAssemblyInfo Version="$(Version)" VersionFilePath="$(VersionFilePath)" />
+  </Target>
+
+  <Target Name="CreateVersionProperty">
+    <TfsHistory ItemSpec="$(ProjectDir)">
+      <Output TaskParameter="ChangesetId" PropertyName="ChangesetId" />
+      <Output TaskParameter="Committer" PropertyName="Committer" />
+      <Output TaskParameter="CommitterDisplayName" PropertyName="CommitterDisplayName" />
+      <Output TaskParameter="CreationDate" PropertyName="CreationDate" />
+      <Output TaskParameter="Comment" PropertyName="Comment" />
+    </TfsHistory>
+
+    <PropertyGroup>
+      <MajorVersion Condition="$(MajorVersion) == ''">1</MajorVersion>
+      <MinorVersion Condition="$(MinorVersion) == ''">0</MinorVersion>
+      <DateTag>$([System.DateTime]::Parse($(CreationDate)).ToString(Mdd))</DateTag>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <Version>$(MajorVersion).$(MinorVersion).$(ChangesetId).$(DateTag)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <UsingTask TaskName="ModifyAssemblyInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <VersionFilePath  ParameterType="System.String"   Required="true" />
+      <Version          ParameterType="System.String"   Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        if (!File.Exists(this.VersionFilePath)) throw new FileNotFoundException(null, this.VersionFilePath);
+        System.Version.Parse(this.Version);
+
+        var txt = File.ReadAllText(this.VersionFilePath);
+        txt = Regex.Replace(txt, @"(?m)(?<=^\[assembly:\sAssemblyVersion\("")[\d\.]+(?=""\)\])", this.Version);
+        txt = Regex.Replace(txt, @"(?m)(?<=^\[assembly:\sAssemblyFileVersion\("")[\d\.]+(?=""\)\])", this.Version);
+
+        new FileInfo(this.VersionFilePath).IsReadOnly = false;
+        File.WriteAllText(this.VersionFilePath, txt);
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <UsingTask TaskName="TfsHistory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <ItemSpec             ParameterType="System.String"   Required="true" />
+      <ChangesetId          ParameterType="System.Int32"    Required="false" Output="true" />
+      <Committer            ParameterType="System.String"   Required="false" Output="true" />
+      <CommitterDisplayName ParameterType="System.String"   Required="false" Output="true" />
+      <CreationDate         ParameterType="System.DateTime" Required="false" Output="true" />
+      <Comment              ParameterType="System.String"   Required="false" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="Microsoft.TeamFoundation.Client" />
+      <Reference Include="Microsoft.TeamFoundation.VersionControl.Client" />
+      <Using Namespace="Microsoft.TeamFoundation.Client"/>
+      <Using Namespace="Microsoft.TeamFoundation.VersionControl.Client"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        var serverUri = Workstation.Current.GetLocalWorkspaceInfo(this.ItemSpec).ServerUri;
+        var collection = new TfsTeamProjectCollection(serverUri);
+        var versionControl = collection.GetService<VersionControlServer>();
+
+        var changeset = versionControl.QueryHistory(this.ItemSpec, RecursionType.Full, 1)
+          .Select(c => new
+          {
+            c.ChangesetId,
+            c.Committer,
+            c.CommitterDisplayName,
+            c.CreationDate,
+            c.Comment,
+          })
+          .FirstOrDefault();
+
+        if (changeset != null)
+        {
+          this.ChangesetId = changeset.ChangesetId;
+          this.Committer = changeset.Committer;
+          this.CommitterDisplayName = changeset.CommitterDisplayName;
+          this.CreationDate = changeset.CreationDate;
+          this.Comment = changeset.Comment;
+          return true;
+        }
+
+        return false;
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+</Project>
