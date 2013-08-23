@@ -1,0 +1,2 @@
+Ltc.MSBuild.UpdateVersion.targets
+=================================
