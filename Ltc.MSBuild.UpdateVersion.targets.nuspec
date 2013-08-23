@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Ltc.MSBuild.UpdateVersion.targets</id>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <authors>bigsan</authors>
         <owners>bigsan</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,5 +13,6 @@
     <files>
         <file src="Content\Build\UpdateVersion.targets" target="Content\Build\UpdateVersion.targets" />
         <file src="tools\install.ps1" target="tools\install.ps1" />
+        <file src="tools\uninstall.ps1" target="tools\uninstall.ps1" />
     </files>
 </package>

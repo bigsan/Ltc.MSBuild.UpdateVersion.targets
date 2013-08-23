@@ -2,12 +2,12 @@ param($installPath, $toolsPath, $package, $project)
 
 function InjectTargets($installPath, $project, $targetsFilePath)
 {
-    $targetsFile = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($project.FullName), $targetsFilePath)
+	$targetsFile = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($project.FullName), $targetsFilePath)
 
 	# Grab the loaded MSBuild project for the project
 	$buildProject = @([Microsoft.Build.Evaluation.ProjectCollection]::GlobalProjectCollection.GetLoadedProjects($project.FullName))[0]
 
-	$importsToRemove = $buildProject.Xml.Imports | Where-Object { $_.Project.Endswith($targetsFile) }
+	$importsToRemove = $buildProject.Xml.Imports | Where-Object { $_.Project.Endswith($targetsFilePath) }
 
 	# remove existing imports
 	foreach ($importToRemove in $importsToRemove) 
@@ -29,6 +29,7 @@ function InjectTargets($installPath, $project, $targetsFilePath)
 }
 
 $targetsFilePath = 'Build\UpdateVersion.targets'
+$targetsFile = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($project.FullName), $targetsFilePath)
 
 Write-Host '- Adding <Import /> into project file...'
 InjectTargets $installPath $project $targetsFilePath
@@ -36,4 +37,4 @@ Write-Host '- Targets imported.'
 
 $project.Save()
 
-$DTE.ItemOperations.OpenFile($targetsFilePath)
+$DTE.ItemOperations.OpenFile($targetsFile)
