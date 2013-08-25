@@ -14,6 +14,7 @@ The version is formatted as `$(MajorVersion).$(MinorVersion).$(ChangesetId).$(Md
 * $(ChangesetId): Latest changeset id of project history queried from TFS
 * $(Mdd): Latest changeset modified date in `Mdd` format
 
+> To prevent assembly referencing issue (strong name, version conflict, etc.), only `AssemblyFileVersion` will change all parts of revision number, `AssemblyVersion` changes only if the `MajorVersion` or `MinorVersion` have been changed.
 
 How to install?
 ===============
@@ -23,5 +24,5 @@ How to install?
 
 What's changed by the nuget package
 ===================================
-* Add `Build\UpdateVersion.targets` file to your project.
+* Add `Build\UpdateVersion.targets` and `Build\VersionInfo.targets` files to your project.
 * Add `<Import />` to your project file (`.csproj`).

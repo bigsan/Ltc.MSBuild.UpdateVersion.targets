@@ -29,7 +29,8 @@ function InjectTargets($installPath, $project, $targetsFilePath)
 }
 
 $targetsFilePath = 'Build\UpdateVersion.targets'
-$targetsFile = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($project.FullName), $targetsFilePath)
+$verionTargetsFilePath = 'Build\VersionInfo.targets'
+$verionTargetsFileFullPath = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($project.FullName), $verionTargetsFilePath)
 
 Write-Host '- Adding <Import /> into project file...'
 InjectTargets $installPath $project $targetsFilePath
@@ -37,4 +38,4 @@ Write-Host '- Targets imported.'
 
 $project.Save()
 
-$DTE.ItemOperations.OpenFile($targetsFile)
+$DTE.ItemOperations.OpenFile($verionTargetsFileFullPath)

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  Modify MajorVersion, MinorVersion and VersionFilePath properties if needed.
+
+  The versions will be updated as below before project build.
+  Assembly version: $(MajroVersion).$(MinorVersion).0.0
+  File version: $(MajroVersion).$(MinorVersion).$(ChangesetId).$(Mdd)
+
+  NOTE: This build runs only when the $(Configuration.StartsWith('Release'))
+  -->
+  <PropertyGroup>
+    <MajorVersion Condition="$(MajorVersion) == ''">1</MajorVersion>
+    <MinorVersion Condition="$(MinorVersion) == ''">0</MinorVersion>
+    <VersionFilePath>$(ProjectDir)\Properties\AssemblyInfo.cs</VersionFilePath>
+  </PropertyGroup>
+</Project>
