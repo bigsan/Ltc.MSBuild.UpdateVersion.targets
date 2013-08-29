@@ -4,7 +4,7 @@
 
   <Target Name="UpdateVersion"
           DependsOnTargets="CreateVersionProperty"
-          BeforeTargets="Build"
+          BeforeTargets="BeforeBuild"
           Condition="$(Configuration.ToLower().StartsWith('release'))">
     <Message Text="*** Updating $(VersionFilePath)" Importance="high" />
     <Message Text="*** Set assembly version to $(AssemblyVersion)" Importance="high" />
