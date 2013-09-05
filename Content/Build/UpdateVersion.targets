@@ -82,13 +82,14 @@
           var collection = new TfsTeamProjectCollection(serverUri);
           var versionControl = collection.GetService<VersionControlServer>();
 
-          var changeset = versionControl.QueryHistory(this.ItemSpec, RecursionType.Full, 1).FirstOrDefault();
+          var changeset = versionControl.QueryHistory(this.ItemSpec, VersionSpec.Latest, 0, RecursionType.Full, Environment.UserName, null, null, 1, true, false).Cast<Changeset>().FirstOrDefault();
+          var prop = changeset.GetType().GetProperty("CommitterDisplayName");
 
           if (changeset != null)
           {
             this.ChangesetId = changeset.ChangesetId;
             this.Committer = changeset.Committer;
-            this.CommitterDisplayName = changeset.CommitterDisplayName;
+            this.CommitterDisplayName = prop == null ? changeset.Committer : (string)prop.GetValue(changeset);
             this.CreationDate = changeset.CreationDate;
             this.Comment = changeset.Comment;
           }
