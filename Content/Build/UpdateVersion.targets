@@ -75,14 +75,13 @@
       <Using Namespace="Microsoft.TeamFoundation.VersionControl.Client"/>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-        this.CreationDate = DateTime.Now;
         try
         {
           var serverUri = Workstation.Current.GetLocalWorkspaceInfo(this.ItemSpec).ServerUri;
           var collection = new TfsTeamProjectCollection(serverUri);
           var versionControl = collection.GetService<VersionControlServer>();
 
-          var changeset = versionControl.QueryHistory(this.ItemSpec, VersionSpec.Latest, 0, RecursionType.Full, Environment.UserName, null, null, 1, true, false).Cast<Changeset>().FirstOrDefault();
+          var changeset = versionControl.QueryHistory(this.ItemSpec, VersionSpec.Latest, 0, RecursionType.Full, null, null, null, 1, false, false).Cast<Changeset>().FirstOrDefault();
           var prop = changeset.GetType().GetProperty("CommitterDisplayName");
 
           if (changeset != null)
