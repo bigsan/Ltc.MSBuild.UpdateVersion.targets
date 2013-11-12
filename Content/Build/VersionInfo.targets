@@ -13,5 +13,9 @@
     <MajorVersion Condition="$(MajorVersion) == ''">1</MajorVersion>
     <MinorVersion Condition="$(MinorVersion) == ''">0</MinorVersion>
     <VersionFilePath>$(ProjectDir)\Properties\AssemblyInfo.cs</VersionFilePath>
+
+    <ItemSpec Condition="$(ItemSpec) == ''">$(ProjectDir)</ItemSpec>
+    <VersionFrom Condition="$(VersionFrom) == ''">1</VersionFrom>
+    <VersionTo Condition="$(VersionTo) == ''">T</VersionTo>
   </PropertyGroup>
 </Project>

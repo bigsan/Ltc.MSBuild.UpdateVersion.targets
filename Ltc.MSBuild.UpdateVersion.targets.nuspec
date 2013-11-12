@@ -2,15 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Ltc.MSBuild.UpdateVersion.targets</id>
-        <version>1.0.6</version>
+        <version>1.0.7</version>
         <authors>bigsan</authors>
         <owners>bigsan</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Auto update assembly version's build number and revision parts accoring to TFS's changeset id and modified date. Set Configuration property with 'Release' prefix to turn this feature on.</description>
-        <releaseNotes>[1.0.6] - 2013-10-01
-  Query history for any users.
-[1.0.5] - 2013-08-29
-  Compatible to TFS client 2010.</releaseNotes>
+        <releaseNotes>[1.0.7] - 2013-11-12
+  Add ItemSpec, VersionFrom and VersionTo properties for tunning QueryHistory behavior.</releaseNotes>
         <language />
         <tags>tfs version msbuild</tags>
     </metadata>

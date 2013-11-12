@@ -16,7 +16,7 @@
   </Target>
 
   <Target Name="CreateVersionProperty">
-    <TfsHistory ItemSpec="$(ProjectDir)">
+    <TfsHistory ItemSpec="$(ItemSpec)" VersionFrom="$(VersionFrom)" VersionTo="$(VersionTo)">
       <Output TaskParameter="ChangesetId" PropertyName="ChangesetId" />
       <Output TaskParameter="Committer" PropertyName="Committer" />
       <Output TaskParameter="CommitterDisplayName" PropertyName="CommitterDisplayName" />
@@ -62,6 +62,8 @@
   <UsingTask TaskName="TfsHistory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
       <ItemSpec             ParameterType="System.String"   Required="true" />
+      <VersionFrom          ParameterType="System.String"   Required="false" />
+      <VersionTo            ParameterType="System.String"   Required="false" />
       <ChangesetId          ParameterType="System.Int32"    Required="false" Output="true" />
       <Committer            ParameterType="System.String"   Required="false" Output="true" />
       <CommitterDisplayName ParameterType="System.String"   Required="false" Output="true" />
@@ -81,11 +83,13 @@
           var collection = new TfsTeamProjectCollection(serverUri);
           var versionControl = collection.GetService<VersionControlServer>();
 
-          var changeset = versionControl.QueryHistory(this.ItemSpec, VersionSpec.Latest, 0, RecursionType.Full, null, null, null, 1, false, false).Cast<Changeset>().FirstOrDefault();
-          var prop = changeset.GetType().GetProperty("CommitterDisplayName");
+          var versionFrom = String.IsNullOrEmpty(this.VersionFrom) ? null : VersionSpec.ParseSingleSpec(this.VersionFrom, null);
+          var versionTo = String.IsNullOrEmpty(this.VersionTo) ? null : VersionSpec.ParseSingleSpec(this.VersionTo, null);
+          var changeset = versionControl.QueryHistory(this.ItemSpec, VersionSpec.Latest, 0, RecursionType.Full, null, versionFrom, versionTo, 1, false, false).Cast<Changeset>().FirstOrDefault();
 
           if (changeset != null)
           {
+            var prop = changeset.GetType().GetProperty("CommitterDisplayName");
             this.ChangesetId = changeset.ChangesetId;
             this.Committer = changeset.Committer;
             this.CommitterDisplayName = prop == null ? changeset.Committer : (string)prop.GetValue(changeset);
